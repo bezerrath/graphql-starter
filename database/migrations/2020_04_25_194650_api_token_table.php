@@ -14,7 +14,7 @@ class ApiTokenTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('api_token')->nullable()->default(null);
+            $table->string('api_token')->unique()->nullable()->default(null);
         });
     }
 

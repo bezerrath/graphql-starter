@@ -1,0 +1,37 @@
+type Query {
+    usuarios: [Usuario!]! @paginate(defaultCount: 10)
+    usuario(id: ID @eq): Usuario @find
+}
+
+type Mutation {
+    login(input: LoginInput): LoginResponse! @field(resolver: "App\\GraphQL\\Resolvers\\LoginResolver@resolve")
+    novo_usuario(input: UsuarioInput @spread): Usuario @create
+}
+
+type Usuario {
+    id: ID!
+    name: String!
+    email: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+input LoginInput {
+    email: String!
+    password: String!
+}
+
+input UsuarioInput {
+    name: String!
+    email: String!
+    password: String! @hash
+}
+
+type LoginResponse {
+    usuario: Usuario
+    status: String!
+    message: String!
+    access_token: String
+    token_type: String
+    expires_in: Int
+}
