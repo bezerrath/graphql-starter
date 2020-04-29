@@ -1,10 +1,14 @@
-type Query {
+type Query @guard(with: "api"){
     usuarios: [Usuario!]! @paginate(defaultCount: 10)
     usuario(id: ID @eq): Usuario @find
 }
 
 type Mutation {
     login(input: LoginInput): LoginResponse! @field(resolver: "App\\GraphQL\\Resolvers\\LoginResolver@resolve")
+}
+
+extend type Mutation @guard(with: "api") {
+    logout: LogoutResponse @field(resolver: "App\\GraphQL\\Resolvers\\LogoutResolver@resolve")
     novo_usuario(input: UsuarioInput @spread): Usuario @create
 }
 
@@ -29,9 +33,14 @@ input UsuarioInput {
 
 type LoginResponse {
     usuario: Usuario
-    status: String!
+    status: Int!
     message: String!
     access_token: String
     token_type: String
     expires_in: Int
+}
+
+type LogoutResponse {
+    status: Int!
+    message: String!
 }
