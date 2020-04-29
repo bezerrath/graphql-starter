@@ -16,6 +16,7 @@
         "laravel/tinker": "^2.0",
         "mll-lab/laravel-graphql-playground": "^2.1",
         "nuwave/lighthouse": "^4.12",
+        "predis/predis": "^1.1",
         "tymon/jwt-auth": "^1.0"
     },
     "require-dev": {
