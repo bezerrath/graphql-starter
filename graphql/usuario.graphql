@@ -1,17 +1,20 @@
 type Query @guard(with: "api"){
     usuarios: [Usuario!]! @paginate(defaultCount: 10)
     usuario(id: ID @eq): Usuario @find
+    perfil: Usuario @auth
 }
 
 type Mutation {
-    login(input: LoginInput): LoginResponse! @field(resolver: "App\\GraphQL\\Mutations\\LoginMutation")
-    recuperar_senha(input: RecuperarSenhaInput): RecuperarSenhaResponse @field(resolver: "App\\GraphQL\\Mutations\\RecuperarSenhaMutation") @recuperarSenhaValidation 
-    altera_senha_com_token(input: AlteraSenhaComTokenInput @spread): AlteraSenhaComTokenResponse @field(resolver: "App\\GraphQL\\Mutations\\AlteraSenhaComTokenMutation")
+    login(input: LoginInput): LoginResponse! @field(resolver: "UsuarioMutator@login")
+    recuperar_senha(input: RecuperarSenhaInput): DefaultResponse @field(resolver: "UsuarioMutator@recuperaSenha") @recuperarSenhaValidation 
+    altera_senha_com_token(input: AlteraSenhaComTokenInput @spread): AlteraSenhaComTokenResponse @field(resolver: "UsuarioMutator@alteraSenhaComToken")    
 }
 
 extend type Mutation @guard(with: "api") {
-    logout: LogoutResponse @field(resolver: "App\\GraphQL\\Mutations\\LogoutMutation")
+    logout: DefaultResponse @field(resolver: "UsuarioMutator@logout")
     novo_usuario(input: UsuarioInput @spread): Usuario @create
+    altera_senha(input: AlteraSenhaInput @spread): DefaultResponse @field(resolver: "UsuarioMutator@alteraSenha") 
+    altera_perfil(id: ID @eq, input: PerfilInput): PerfilResponse  @field(resolver: "UsuarioMutator@alteraPerfil") 
 }
 
 type Usuario {
@@ -29,8 +32,12 @@ input LoginInput {
 
 input UsuarioInput {
     name: String!
-    email: String!
+    email: String! @rules(apply: ["unique:users,email"])
     password: String! @hash
+}
+
+input PerfilInput {
+    name: String
 }
 
 input RecuperarSenhaInput {
@@ -43,7 +50,12 @@ input AlteraSenhaComTokenInput {
     password_confirmation: String!
 }
 
-type LoginResponse implements DefaultResponse {
+input AlteraSenhaInput {
+    password: String! @rules(apply: ["confirmed"])
+    password_confirmation: String!
+}
+
+type LoginResponse {
     status: Int!
     message: String!
     usuario: Usuario
@@ -52,20 +64,16 @@ type LoginResponse implements DefaultResponse {
     expires_in: Int
 }
 
-type LogoutResponse implements DefaultResponse {
-    status: Int!
-    message: String!
-}
-
-type RecuperarSenhaResponse implements DefaultResponse {
-    status: Int!
-    message: String!
-}
-
-type AlteraSenhaComTokenResponse implements DefaultResponse {
+type AlteraSenhaComTokenResponse {
     status: Int!
     message: String!
     access_token: String
     token_type: String
     expires_in: Int
+}
+
+type PerfilResponse {
+    status: Int!
+    message: String!
+    perfil: Usuario
 }
