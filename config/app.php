@@ -54,6 +54,8 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'reset_password_uri' => '/recuperar-senha',
+
     'asset_url' => env('ASSET_URL', null),
 
     /*

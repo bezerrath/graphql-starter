@@ -4,11 +4,13 @@ type Query @guard(with: "api"){
 }
 
 type Mutation {
-    login(input: LoginInput): LoginResponse! @field(resolver: "App\\GraphQL\\Resolvers\\LoginResolver@resolve")
+    login(input: LoginInput): LoginResponse! @field(resolver: "App\\GraphQL\\Mutations\\LoginMutation")
+    recuperar_senha(input: RecuperarSenhaInput): RecuperarSenhaResponse @field(resolver: "App\\GraphQL\\Mutations\\RecuperarSenhaMutation") @recuperarSenhaValidation 
+    altera_senha_com_token(input: AlteraSenhaComTokenInput @spread): AlteraSenhaComTokenResponse @field(resolver: "App\\GraphQL\\Mutations\\AlteraSenhaComTokenMutation")
 }
 
 extend type Mutation @guard(with: "api") {
-    logout: LogoutResponse @field(resolver: "App\\GraphQL\\Resolvers\\LogoutResolver@resolve")
+    logout: LogoutResponse @field(resolver: "App\\GraphQL\\Mutations\\LogoutMutation")
     novo_usuario(input: UsuarioInput @spread): Usuario @create
 }
 
@@ -31,16 +33,39 @@ input UsuarioInput {
     password: String! @hash
 }
 
-type LoginResponse {
-    usuario: Usuario
+input RecuperarSenhaInput {
+    email: String!
+}
+
+input AlteraSenhaComTokenInput {
+    token: String!
+    password: String! @rules(apply: ["confirmed"])
+    password_confirmation: String!
+}
+
+type LoginResponse implements DefaultResponse {
     status: Int!
     message: String!
+    usuario: Usuario
     access_token: String
     token_type: String
     expires_in: Int
 }
 
-type LogoutResponse {
+type LogoutResponse implements DefaultResponse {
     status: Int!
     message: String!
+}
+
+type RecuperarSenhaResponse implements DefaultResponse {
+    status: Int!
+    message: String!
+}
+
+type AlteraSenhaComTokenResponse implements DefaultResponse {
+    status: Int!
+    message: String!
+    access_token: String
+    token_type: String
+    expires_in: Int
 }

@@ -1,0 +1,2 @@
+<p>{{$usuario->name}}, você solicitou a redefinição de sua senha.</p>
+<p>Utilize o link <a href="{{url(config('app.reset_password_uri'))}}/?token={{$usuario->remember_token}}"></a> para criar uma senha nova.</p>
