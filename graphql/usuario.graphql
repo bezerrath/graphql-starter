@@ -5,15 +5,15 @@ type Query @guard(with: "api"){
 }
 
 type Mutation {
-    login(input: LoginInput): LoginResponse! @field(resolver: "UsuarioMutator@login")
-    recuperar_senha(input: RecuperarSenhaInput): DefaultResponse @field(resolver: "UsuarioMutator@recuperaSenha") @recuperarSenhaValidation 
-    altera_senha_com_token(input: AlteraSenhaComTokenInput @spread): AlteraSenhaComTokenResponse @field(resolver: "UsuarioMutator@alteraSenhaComToken")    
+    login(input: LoginInput): AutenticacaoPayload! @field(resolver: "UsuarioMutator@login")
+    recuperar_senha(input: RecuperarSenhaInput): Boolean @field(resolver: "UsuarioMutator@recuperaSenha") @recuperarSenhaValidation 
+    altera_senha_com_token(input: AlteraSenhaComTokenInput @spread): AutenticacaoPayload @field(resolver: "UsuarioMutator@alteraSenhaComToken")    
 }
 
 extend type Mutation @guard(with: "api") {
-    logout: DefaultResponse @field(resolver: "UsuarioMutator@logout")
-    novo_usuario(input: UsuarioInput @spread): Usuario @create
-    altera_senha(input: AlteraSenhaInput @spread): DefaultResponse @field(resolver: "UsuarioMutator@alteraSenha") 
+    logout: Boolean @field(resolver: "UsuarioMutator@logout")
+    novo_usuario(input: UsuarioInput @spread): Usuario @field(resolver: "UsuarioMutator@novoUsuario") 
+    altera_senha(input: AlteraSenhaInput @spread): Boolean @field(resolver: "UsuarioMutator@alteraSenha") 
     altera_perfil(id: ID @eq, input: PerfilInput): PerfilResponse  @field(resolver: "UsuarioMutator@alteraPerfil") 
 }
 
@@ -33,7 +33,8 @@ input LoginInput {
 input UsuarioInput {
     name: String!
     email: String! @rules(apply: ["unique:users,email"])
-    password: String! @hash
+    password: String! @rules(apply: ["confirmed"]) @hash
+    password_confirmation: String
 }
 
 input PerfilInput {
@@ -55,25 +56,13 @@ input AlteraSenhaInput {
     password_confirmation: String!
 }
 
-type LoginResponse {
-    status: Int!
-    message: String!
+type AutenticacaoPayload {
     usuario: Usuario
     access_token: String
     token_type: String
     expires_in: Int
 }
 
-type AlteraSenhaComTokenResponse {
-    status: Int!
-    message: String!
-    access_token: String
-    token_type: String
-    expires_in: Int
-}
-
 type PerfilResponse {
-    status: Int!
-    message: String!
     perfil: Usuario
 }

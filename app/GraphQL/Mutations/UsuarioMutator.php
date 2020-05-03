@@ -45,8 +45,6 @@ class UsuarioMutator
 
         return [
             'usuario' => auth()->user(),
-            'status' => 200,
-            'message' => 'Autenticação realizada',
             'access_token' => $token,
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
@@ -104,6 +102,12 @@ class UsuarioMutator
             'status' => 200,
             'message' => 'Senha alterada'
         ];
+    }
+
+    public function novoUsuario($rootValue, array $args)
+    {
+        $usuario = Usuario::create($args);
+        return $usuario;
     }
 
     public function recuperaSenha($rootValue, array $args)
